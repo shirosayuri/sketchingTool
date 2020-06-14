@@ -52,6 +52,7 @@ pyinstaller --additional-hooks-dir=. --hidden-import google-api-python-client --
   ```
 Ещё один если что: файл .ui создаётся с помощью PyQt Designer, который выпилили из стандартной либы. Устанавливается с pyqt-tools.
 Файл из .ui в .py конвертируется так:
+
 ```
 pyuic5 sketchingTool.ui -o sketchingTool.py
 ```
