@@ -21,7 +21,7 @@
 -----
 
 Для сборки в запускаемый файл использовала [PyInstaller](https://habr.com/ru/post/325626/):
-```buildoutcfg
+```
 pip install pypiwin32
 pip install pyinstaller
 
@@ -34,7 +34,7 @@ pyinstaller main.py --onefile --noconsole --icon==sketchingTool.ico
 - И, наконец, несколько модулей в один файл собирать тоже никому не нравится. Лечится [так](https://stackoverflow.com/questions/47350078/importing-external-module-in-single-file-exe-created-with-pyinstaller)
 
 В итоге код собирается вот так:
-```buildoutcfg
+```
 pyinstaller --additional-hooks-dir=. --hidden-import google-api-python-client --noconsole --onefile --icon="sketchingTool.ico" --add-data="secret.json;." main.py
 ```
 Иконка в формате .png должна быть в папке с .exe.
@@ -50,3 +50,8 @@ pyinstaller --additional-hooks-dir=. --hidden-import google-api-python-client --
   "client_secret":"",
   "redirect_uris":[]}}
   ```
+Ещё один если что: файл .ui создаётся с помощью PyQt Designer, который выпилили из стандартной либы. Устанавливается с pyqt-tools.
+Файл из .ui в .py конвертируется так:
+```
+pyuic5 sketchingTool.ui -o sketchingTool.py
+```
