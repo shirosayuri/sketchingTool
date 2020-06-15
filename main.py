@@ -270,6 +270,7 @@ class MainWindow(QtWidgets.QMainWindow, sketchingTool.Ui_SketchingTool):
                 os.remove("token.pickle")
 
     def from_google_photo(self):
+        self.listimages.clear()
         # здесь собираем альбомы в список
         results = self.service.albums().list(
             pageSize=50, fields="nextPageToken,albums(id,title)").execute()
@@ -312,13 +313,28 @@ class MainWindow(QtWidgets.QMainWindow, sketchingTool.Ui_SketchingTool):
             nextpagetoken = ''
             while len(self.listimages) <= count:
                 images = self.service.mediaItems().search(body={"filters": filters, "pageSize": 50, 'pageToken': nextpagetoken}).execute()
-                nextpagetoken = images['nextPageToken']
-                for image in images['mediaItems']:
-                    if len(self.listimages) <= s:
-                        self.listimages.append(image['baseUrl']+'=w2048-h1024')
-                    else:
+                if images:
+                    nextpagetoken = images['nextPageToken']
+
+                    for image in images['mediaItems']:
+                        if len(self.listimages) <= s:
+                            self.listimages.append(image['baseUrl']+'=w2048-h1024')
+                        else:
+                            break
+                    if len(images['mediaItems']) < 49:
                         break
-            self.set_image('random')
+
+                else:
+                    break
+            if self.listimages:
+                self.set_image('random')
+            else:
+                dlg = QtWidgets.QMessageBox(QtWidgets.QMessageBox.Information,
+                                            "Ты чего-то недоговариваешь",
+                                            'По выбранным фильтрам ничего не нашлось',
+                                            buttons=QtWidgets.QMessageBox.Ok,
+                                            parent=self)
+                dlg.exec()
 
     def closeEvent(self, a0: QtGui.QCloseEvent) -> None:
         dlg = QtWidgets.QMessageBox.question(self,
