@@ -109,10 +109,6 @@ class GPDialog(QtWidgets.QDialog):
 
         self.setLayout(self.mainBox)
 
-        self.accepted.connect(self.on_accepted)
-        self.rejected.connect(self.on_rejected)
-        self.finished[int].connect(self.on_finished)
-
     def category_filter(self):
         category_list = []
         for category in self.categories:
@@ -124,13 +120,4 @@ class GPDialog(QtWidgets.QDialog):
         for album in self.albums_radiobutton:
             if self.albums_radiobutton[album].isChecked():
                 return album
-
-    def on_accepted(self):
-        self.category_filter().clear()
-
-    def on_rejected(self):
-        self.category_filter().clear()
-
-    def on_finished(self):
-        self.category_filter().clear()
 

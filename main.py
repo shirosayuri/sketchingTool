@@ -266,6 +266,8 @@ class MainWindow(QtWidgets.QMainWindow, sketchingTool.Ui_SketchingTool):
             self.actionGoogle_Photo.setEnabled(False)
             self.actionLog_In_Google_Photos.setText(("Log In Google Photos"))
             self.service = None
+            if os.path.exists("token.pickle"):
+                os.remove("token.pickle")
 
     def from_google_photo(self):
         # здесь собираем альбомы в список
@@ -280,9 +282,9 @@ class MainWindow(QtWidgets.QMainWindow, sketchingTool.Ui_SketchingTool):
 
         # и отдаём их нашему диаоговому окну, в котором так же есть фильтры предустановленные по категориям и по датам
         dlg = GPDialog(albums)
-        dlg.exec()
-        if dlg.accepted:
+        res = dlg.exec()
 
+        if res == QtWidgets.QDialog.Accepted:
             s, ok = QtWidgets.QInputDialog.getInt(self,
                                                   'Сколько картинок загрузить?',
                                                   'Введи количество от 1 до 2000',
@@ -307,9 +309,15 @@ class MainWindow(QtWidgets.QMainWindow, sketchingTool.Ui_SketchingTool):
                                                     "day": dlg.dateTimeTo.date().day()}]}
             if dlg.album_filter():
                 filters["albumId"] = dlg.album_filter()
-            images = self.service.mediaItems().search(body={"filters": filters, "pageSize": count}).execute()
-            for image in images['mediaItems']:
-                self.listimages.append(image['baseUrl']+'=w2048-h1024')
+            nextpagetoken = ''
+            while len(self.listimages) <= count:
+                images = self.service.mediaItems().search(body={"filters": filters, "pageSize": 50, 'pageToken': nextpagetoken}).execute()
+                nextpagetoken = images['nextPageToken']
+                for image in images['mediaItems']:
+                    if len(self.listimages) <= s:
+                        self.listimages.append(image['baseUrl']+'=w2048-h1024')
+                    else:
+                        break
             self.set_image('random')
 
     def closeEvent(self, a0: QtGui.QCloseEvent) -> None:
